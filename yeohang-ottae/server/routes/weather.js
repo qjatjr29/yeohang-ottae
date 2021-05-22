@@ -28,6 +28,7 @@ request(currentWeatherURL, (err, res, body) => {
     currentWeathers = { temp: currentTemp, feels_like: feels_like, humidity: humidity, state: state };
 })
 
+
 request(fiveDayWeatherURL, (err, res, body) => {
     if (err) {
         console.log(err);
