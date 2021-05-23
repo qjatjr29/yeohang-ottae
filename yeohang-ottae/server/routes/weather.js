@@ -34,7 +34,12 @@ request(fiveDayWeatherURL, (err, res, body) => {
         console.log(err);
     }
     var obj = JSON.parse(body);
-    console.log(obj.list[9]);
+    for (let i = 9; i <= 13; i++) {
+        if (i == 9 || i == 11 || i == 13) {
+            // console.log(obj.list[0]);
+        }
+    }
+    // console.log(obj.list);
     // currentWeathers = { temp: currentTemp, feels_like: feels_like, humidity: humidity, state: state };
 })
 

@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
+import Helmet from "react-helmet";
+import Loader from "../../Components/Loader";
 import KakaoMap from "../Home/kakaoMap"
 const { kakao } = window;
 
@@ -13,7 +15,22 @@ const MapContents = styled.div`
     width: 500px;
     height: 400px;
 `;
-
+const Content = styled.div`
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    position:relative;
+    z-index:1;
+    /* height:100%; */
+`;
+const Item = styled.div`
+    margin-bottom:30px;
+`;
+const SectionTitle = styled.span`
+    margin-top:20px;
+    font-size:23px;
+    font-weight:600;
+`;
 
 const useMyLocation = () => {
     const [coords, setCoords] = useState([]);
@@ -58,7 +75,7 @@ const useMyLocation = () => {
             longitude: longitude,
         };
         console.log(coord);
-        axios.post('/test', coord)
+        axios.post('/data', coord)
             .then((res) => {
                 console.log(res.data);
             }).then((err) => {
@@ -67,95 +84,87 @@ const useMyLocation = () => {
                 console.log(latitude, longitude);
                 LoadMyCoords();
             })
-
-        // axios({
-        //     method: 'post',
-        //     url: '/test',
-        //     data: {
-        //         latitude: latitude,
-        //         longitude: longitude,
-        //     }
-        // });
     }
     useEffect(() => {
         askForCoords();
         sendMyCoords();
 
-        // const script = document.createElement("script");
-        // script.async = true;
-        // script.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=64fe979e65321e35d92f72dbadf4ef36"
-        // document.head.appendChild(script);
-        // script.onload = () => {
-        //     kakao.maps.load(() => {
-        //         let container = document.getElementById('kakaoMap');
-        //         let options = {
-        //             center: new kakao.maps.LatLng(latitude, longitude),
-        //             level: 3
-        //         };
-        //         const map = new window.kakao.maps.Map(container, options);
-        //         setMap(map);
-        //     })
-        // }
-        // return () => {
-        //     setLatitude(null);
-        //     setLongitude(null);
-        //     setCoords([]);
-        // }
     }, [])
     // console.log(script);
     // console.log(latitude, longitude);
     return { coords, latitude, longitude };
 }
 
+const useWeather = () => {
+    const [currentWeather, setCurrentWeather] = useState([]);
+    const [currentTemp, setCurrentTemp] = useState(null);
+    const [currentFeel, setCurrentFeel] = useState(null);
+    const [currentHumidity, setCurrentHumidity] = useState(null);
+    const [currentState, setCurrentState,] = useState(null);
+    const [loading, setLoading] = useState(true);
 
+    const LoadWeather = async () => {
+        // setLoading(false);
+        // console.log("fd");
+        try {
+            console.log("weather");
+            const currentWeather = await axios.get('/weather');
+            console.log(currentWeather.data);
+            const data = currentWeather.data;
+            setCurrentWeather(data);
+            setCurrentTemp(data.temp);
+            setCurrentFeel(data.feels_like);
+            setCurrentHumidity(data.humidity);
+            setCurrentState(data.state);
+        } catch {
+            console.log("err");
+        } finally {
+            setLoading(false);
+            // console.log("1 ");
+            // Classification();
+        }
+    }
+    useEffect(() => {
+        LoadWeather();
+    }, []);
+    return { currentWeather, currentTemp, currentFeel, currentHumidity, currentState };
+}
 
 const Home = () => {
     const { coords, latitude, longitude } = useMyLocation();
-    // useEffect(() => {
-    //     console.log(latitude);
-    //     const script = document.createElement("script");
-    //     script.async = true;
-    //     script.autoload = false;
-    //     script.src = "https://dapi.kakao.com/v2/maps/sdk.js?appkey=64fe979e65321e35d92f72dbadf4ef36"
-    //     document.head.appendChild(script);
-    //     // <script type="text/javascript">
-
-
-    //     // </script>
-    //     script.onload = () => {
-    //         kakao.maps.load(() => {
-    //             var container = document.getElementById("map");
-    //             var options = {
-    //                 center: new kakao.maps.LatLng(latitude, longitude),
-    //                 level: 3
-    //             };
-    //             var map = new kakao.maps.Map(container, options);
-    //             // setMap(map);
-    //         });
-    //     };
-    //     // var container = document.getElementById('map');
-    //     // var options = {
-    //     //     center: new kakao.maps.LatLng(latitude, longitude),
-    //     //     level: 3
-    //     // };
-    //     // var map = new kakao.maps.Map(container, options);
-    // }, [])
-
+    const { currentWeather, currentTemp, currentFeel, currentHumidity, currentState } = useWeather();
     return (
         <Container>
-            <MapContents id="map">
-                <div> {latitude}</div>
-                <span> and</span>
-                <div> {longitude}</div>
-                {/* {coords.map(coord => (
+            <Content>
+                <MapContents id="map">
+                    <div> {latitude}</div>
+                    <span> and</span>
+                    <div> {longitude}</div>
+                    {/* {coords.map(coord => (
                     <>
                         <div> {coord.latitude}</div>
                         <span> and</span>
                         <div> {coord.longitude}</div>
                     </>
                 ))} */}
-                {/* <div id="map"></div> */}
-            </MapContents>
+                    {/* <div id="map"></div> */}
+                </MapContents>
+            </Content>
+            <Content>
+                <Item>
+                    <SectionTitle>현재 날씨</SectionTitle>
+                    <div>
+                        <span>{currentTemp} ℃</span>
+                        <br />
+                        <span>{currentFeel}</span>
+                        <br />
+                        <span>{currentHumidity} %</span>
+                        <br />
+                        <span>{currentState}</span>
+                    </div>
+                </Item>
+            </Content>
+
         </Container >
     );
 }

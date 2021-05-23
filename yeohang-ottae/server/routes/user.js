@@ -13,10 +13,10 @@ router.get('/', (req, res) => {
     ])
 })
 router.post('/', (req, res) => {
-    console.log("ho");
+    // console.log("ho");
     latitude = req.body.latitude;
     longitude = req.body.longitude;
-    console.log(req.body);
+    // console.log(req.body);
     // res.send(latitude);
 })
 module.exports = router;
