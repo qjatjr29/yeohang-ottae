@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Redirect, Switch } from "react-router-d
 import Navigation from "./Navigation";
 import Home from "../Routes/Home";
 import Sights from "../Routes/Sights";
+import Results from "../Routes/Results";
 
 export default () => (
     <Router>
@@ -11,6 +12,7 @@ export default () => (
             <Switch>
                 <Route path="/" exact component={Home} />
                 <Route path="/Sights" exact component={Sights} />
+                <Route path="/Results" exact component={Results} />
                 <Redirect from="*" to="/" />
             </Switch>
         </>

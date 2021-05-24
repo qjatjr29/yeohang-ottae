@@ -29,6 +29,7 @@ request(apiUrl, (err, res, body) => {
     }
     // console.log(body);
     var obj = JSON.parse(body);
+    sights = [];
     // console.log(apiUrl);
     // console.log(obj.response.body.items.item);
 
@@ -58,6 +59,7 @@ request(apiUrl, (err, res, body) => {
 router.get('/', (req, res) => {
     // console.log(Results.length);
     // var str= json.parse(realkey)
+
     res.json(sights);
 })
 router.post('/', (req, res) => {
@@ -65,8 +67,10 @@ router.post('/', (req, res) => {
     const location = req.body.firstCondition;
     const firstOption = req.body.secondCondition;
     const secondOption = req.body.thirdCondition;
-
-    if (location == '서울') {
+    if (location == '전체') {
+        areaCode = "";
+    }
+    else if (location == '서울') {
         areaCode = 1;
     }
     else if (location == '인천') {
@@ -151,12 +155,12 @@ router.post('/', (req, res) => {
         }
 
     }
-    if (firstOption == "문화시설") {
+    else if (firstOption == "문화시설") {
         contentType = "14";
         if (secondOption == "박물관") {
             cat1 = "A02";
             cat2 = "A0206";
-            cat3 = "A01010400";
+            cat3 = "A02060100";
         } else if (secondOption == "미술관") {
             cat1 = "A02";
             cat2 = "A0206";
@@ -167,7 +171,7 @@ router.post('/', (req, res) => {
             cat3 = "A02060600";
         }
     }
-    if (firstOption == "축제/공연/행사") {
+    else if (firstOption == "축제/공연/행사") {
         contentType = "15";
         if (secondOption == "일반축제") {
             cat1 = "A02";
@@ -195,7 +199,7 @@ router.post('/', (req, res) => {
             cat3 = "A02081200";
         }
     }
-    if (firstOption == "레포츠") {
+    else if (firstOption == "레포츠") {
         contentType = "28";
         if (secondOption == "육상레포츠") {
             cat1 = "A03";
@@ -214,8 +218,55 @@ router.post('/', (req, res) => {
 
 
     apiUrl = url + mykey + `&contentTypeId=${contentType}&cat1=${cat1}&cat2=${cat2}&cat3=${cat3}&areaCode=${areaCode}&MobileOS=ETC&MobileApp=AppTest&_type=json`;
+    // console.log(areaCode);
+    console.log(apiUrl);
+    request(apiUrl, (err, res, body) => {
+        if (err) {
+            console.log(err);
+        }
+        // console.log(body);
+        var obj = JSON.parse(body);
+        console.log(obj);
+        sights = [];
+        // console.log(apiUrl);
+        // console.log(obj.response.body.items.item);
+
+        const items = obj.response.body.items.item;
+        console.log(items);
+        var id = 1;
+
+        items.map((item) => {
+            var title = item.title;
+            var tel = " ";
+            var address = item.addr1;
+            var image = " ";
+
+            if (item.addr2) {
+                address = address + item.addr2;
+            }
+            if (item.tel) {
+                tel = item.tel;
+            }
+            if (item.firstimage) {
+                image = item.firstimage;
+            }
+            // console.log(name, field, location);
+            sights.push({ id: id, title: title, address: address, tel: tel, image: image, location: location, type: firstOption, detail: secondOption });
+            // console.log(item);
+            // console.log(item.관광지명);
+            id = id + 1;
+        })
+
+        // const items = obj.data;
+    })
     res.redirect('/');
-    console.log(req.body);
+    // console.log(req.body);
     // res.send(latitude);
 })
+// router.put('/', (req, res) => {
+//     // console.log(Results.length);
+//     // var str= json.parse(realkey)
+//     res.json(sights);
+// })
+
 module.exports = router;

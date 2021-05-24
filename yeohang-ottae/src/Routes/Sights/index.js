@@ -5,6 +5,7 @@ import Helmet from "react-helmet";
 import Loader from "../../Components/Loader";
 import Select from "react-select";
 import SightTable from "../../Components/sightsTable";
+import { Link } from "react-router-dom";
 // import SightsApi from "../../Api/api"
 
 
@@ -34,8 +35,8 @@ const Table = styled.table`
     border-collapse: separate;
 `;
 const SelectDiv = styled.div`
-    margin: 25px;
-    height: 150px;
+    margin: 30px;
+    height: 170px;
     color:black;
 `;
 
@@ -46,12 +47,14 @@ const useSights = () => {
     const [firstCondition, setFirstCondition] = useState(null);
     const [secondCondition, setSecondCondition] = useState(null);
     const [thirdCondition, setThirdCondition] = useState(null);
+    const [click, setClick] = useState(false);
     // const [firstCheck, setFirstCheck] = useState(true);
     // const [secondCheck, setSecondCheck] = useState(true);
     // const [thirdCheck, setThirdCheck] = useState(true);
     // const [fourthCheck, setFourthCheck] = useState(true);
     const [loading, setLoading] = useState(true);
     const firstOption = useMemo(() => [
+        { value: "전체", label: "전체", type: "first" },
         { value: "서울", label: "서울", type: "first" },
         { value: "인천", label: "인천", type: "first" },
         { value: "대전", label: "대전", type: "first" },
@@ -118,6 +121,17 @@ const useSights = () => {
     // const [secondOption,setSecondOption]=useState([]);
     // const [thirdOption,setThirdOption]=useState([]);
     // const [fourthOption,setFourthOption]=useState([]);
+    const handleSubmit = (event) => {
+        if (event) {
+            event.preventDefault();
+        }
+        if (click == true) {
+            setClick(false);
+        }
+        else if (click == false) {
+            setClick(true);
+        }
+    }
     const handleChange = (event) => {
         console.log(event);
         // const { target: { type } } = event;
@@ -176,18 +190,18 @@ const useSights = () => {
         // console.log(thirdCondition);
         sendData();
         LoadData();
-    }, [firstCondition, secondCondition, thirdCondition]);
-    return { loading, sights, firstOption, secondOption, thirdOption, handleChange };
+    }, [click]);
+    return { loading, sights, firstOption, secondOption, thirdOption, handleChange, handleSubmit };
 }
 
 
 
 const Sights = () => {
-    const { loading, sights, firstOption, secondOption, thirdOption, handleChange } = useSights();
+    const { loading, sights, firstOption, secondOption, thirdOption, handleChange, handleSubmit } = useSights();
 
     return (
         <Container>
-            <Helmet><title>Sights</title></Helmet>
+            <Helmet><title>Questions | Yeohang-ottae</title></Helmet>
             <div>
                 <SelectDiv>
                     <Select options={firstOption} onChange={handleChange} />
@@ -198,38 +212,19 @@ const Sights = () => {
                 <SelectDiv>
                     <Select options={thirdOption} onChange={handleChange} />
                 </SelectDiv>
-                {/* <SelectDiv>
-                    <Select options={thirdOption} />
-                </SelectDiv>
-                <SelectDiv>
-                    <Select options={fourthOption} />
-                </SelectDiv> */}
-                {/* <button onSubmit={handleSumit}>선택</button> */}
+                {/* <Link to="/Results">
+                    <button onClick={handleSubmit}>선택</button>
+                </Link> */}
+                <button onClick={handleSubmit}>선택</button>
+                <Link to="Results">
+                    <div>이동</div>
+                </Link>
             </div>
-            {/* {firstCheck && firstCheck == false && (
-                <Form onsubmit={fisrtSubmit}>
-                    <Input></Input>
-                </Form>
-            )}
-            {secondCheck && secondCheck == false && (
-                <Form onsubmit={secondSubmit}>
-                    <Input></Input>
-                </Form>
-            )}
-            {thirdCheck && thirdCheck == false && (
-                <Form onsubmit={thirdSubmit}>
-                    <Input></Input>
-                </Form>
-            )}
-            {fourthCheck && fourthCheck == false && (
-                <Form onsubmit={fourthSubmit}>
-                    <Input></Input>
-                </Form>
-            )} */}
+
 
             {loading ? <Loader /> :
                 <>
-                    <Helmet><title>Jeju | Sights</title></Helmet>
+                    <Helmet><title>Questions | Yeohang-ottae</title></Helmet>
                     <Content>
                         {sights && sights.length > 0 && (
                             <Item>
