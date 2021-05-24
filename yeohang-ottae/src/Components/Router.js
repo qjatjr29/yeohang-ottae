@@ -14,6 +14,7 @@ export default () => (
                 <Route path="/Sights" exact component={Sights} />
                 <Route path="/Results" exact component={Results} />
                 <Redirect from="*" to="/" />
+
             </Switch>
         </>
     </Router>
