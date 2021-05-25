@@ -6,6 +6,7 @@ import Loader from "../../Components/Loader";
 import Select from "react-select";
 import SightTable from "../../Components/sightsTable";
 import { Link } from "react-router-dom";
+
 // import SightsApi from "../../Api/api"
 
 
@@ -222,7 +223,7 @@ const Sights = () => {
             </div>
 
 
-            {loading ? <Loader /> :
+            {/* {loading ? <Loader /> :
                 <>
                     <Helmet><title>Questions | Yeohang-ottae</title></Helmet>
                     <Content>
@@ -243,11 +244,12 @@ const Sights = () => {
                                         ))}
                                     </tbody>
                                 </Table>
+
                             </Item>
                         )}
                     </Content>
                 </>
-            }
+            } */}
         </Container>
 
     );

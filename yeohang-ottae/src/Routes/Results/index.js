@@ -31,22 +31,42 @@ const Cover = styled.div`
     top:70px;
     left:30px; 
 `;
-const InfoContainer = styled.div`
-    width:370px;
+const WeatherContanier = styled.div`
+    width:300px;
+    height: 150px;
     display:grid;
     position:fixed;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     top:700px;
     left:40px;
     justify-content:space-between;
     align-items: center;
-    background-color:rgba(255,255,255,0.7);
+    /* background-color:rgba(255,255,255,0.6); */
     padding:10px;
+    color:white;
+`;
+const WeatherDiv = styled.div`
+    display: flex;
+    flex-direction: column;
+    font-size:16px;
+`;
+const WeatherIcon = styled.div`
+    width:50px;
+    background-image:url(${props => props.bgImage});
+    background-position:center center;
+    background-size:cover;
+    height:60px;
+    font-size:18px;
+    display: flex;
+    margin-left:30px;
+    
+`;
+const WeatherSpan = styled.span`
+    margin-bottom:15px;
 `;
 const InfoTitle = styled.span`
     color:black;
     font-size:12px;
-   
 `;
 const Data = styled.div`
     width :70%;
@@ -73,42 +93,102 @@ const SectionTitle = styled.span`
     font-size:23px;
     font-weight:600;
 `;
+const SectionHr = styled.hr`
+    margin-top:15px;
+`;
+
+const ResetBtn = styled.button``;
+
 
 const useLoad = () => {
     const [results, setResults] = useState([]);
     const [randomNum, setRandomNum] = useState(null);
-
+    const [data, setData] = useState([]);
+    const [click, setClick] = useState(false);
+    const [currentWeather, setCurrentWeather] = useState({});
     const [loading, setLoading] = useState(true);
-
-    const LoadData = async () => {
+    const onClick = (event) => {
+        if (event) {
+            event.preventDefault();
+        }
+        if (click == true) {
+            setClick(false);
+        }
+        else if (click == false) {
+            setClick(true);
+        }
+    }
+    const sendXY = async () => {
+        console.log(data);
+        const XY = {
+            x: data.mapx,
+            y: data.mapy,
+        };
+        console.log(XY);
+        await axios.post('/weather', XY)
+            .then((res) => {
+                // console.log(res.data);
+            }).then((err) => {
+                console.log(err);
+            }).then(() => {
+                console.log(data.mapx, data.mapy);
+                LoadWeather();
+            })
+    }
+    const LoadWeather = async () => {
         try {
-            const results = await axios.get('/sights');
-            console.log(results.data);
-            // const data = _coords.data;
-            setResults(results.data);
-
+            console.log("weather");
+            const currentWeather = await axios.get('/weather');
+            console.log(currentWeather.data);
+            const data = currentWeather.data;
+            const currentData = {
+                temp: data.temp,
+                feels_like: data.feels_like,
+                humidity: data.humidity,
+                state: data.state,
+                icon: data.icon
+            }
+            setCurrentWeather(currentData);
         } catch {
             console.log("err");
         } finally {
             setLoading(false);
-            const size = results.length;
-            const randomNum = Math.floor(Math.random() * size) + 1;
-            setRandomNum(randomNum);
-            console.log(size);
-            console.log(randomNum);
-            // console.log("1 ");
         }
     }
-
+    const LoadData = async () => {
+        try {
+            const results = await axios.get('/sights');
+            const size = results.data.length;
+            const randomNum = Math.floor(Math.random() * size) + 1;
+            for (let i = 1; i <= size; i++) {
+                if (i == randomNum) {
+                    // setData(results.data[i - 1]);
+                    // console.log(results.data[i - 1]);
+                    setData(results.data[i - 1]);
+                }
+            }
+        } catch {
+            console.log("err");
+        } finally {
+            setLoading(false);
+        }
+    }
     useEffect(() => {
+        // console.log(data);
         LoadData();
-    }, []);
-    return { loading, results, randomNum };
+        if (data.mapx != null) {
+            sendXY();
+            LoadWeather();
+        }
+    }, [click]);
+    return { loading, results, randomNum, onClick, data, currentWeather };
 }
 
 
+
 const Results = () => {
-    const { loading, results, randomNum } = useLoad();
+    const { loading, results, randomNum, onClick, data, currentWeather } = useLoad();
+    console.log(currentWeather);
     return (
         loading ? (
             <>
@@ -122,35 +202,44 @@ const Results = () => {
                     <Cover bgImage={ }></Cover>
                 </Content> */}
                 <Content>
-                    {results.map((result, i) =>
-                        i !== randomNum ? null :
-                            <>
-                                <Cover bgImage={results[i].image} />
-                                <InfoContainer>
-                                    <InfoTitle>{results[i].title}</InfoTitle>
-                                </InfoContainer>
-                                <Data>
-                                    <Title>{results[i].title}</Title>
-                                    <ItemContainer>
-                                        <Item>{results[i].type}</Item>
-                                        <Divider>  ·  </Divider>
-                                        <Item>{results[i].detail}</Item>
-                                        <Divider>  ·  </Divider>
-                                        <Item>{results[i].location}</Item>
-                                        <Divider>  ·  </Divider>
-                                        <Item>{results[i].address}</Item>
-                                        {results[i].tel && results[i].tel.length > 1 && (
-                                            <>
-                                                <Divider>  ·  </Divider>
-                                                <Item>{results[i].tel}</Item>
-                                            </>
-                                        )}
-                                    </ItemContainer>
-                                </Data>
-                                <SectionTitle>{results[i].type}</SectionTitle>
-                            </>
-                    )}
+                    <>
+                        <Cover bgImage={data.image != " " ? data.image : require("../../images/NotFound.PNG").default} />
+                        <WeatherContanier>
+                            <WeatherDiv>
+                                <WeatherSpan>현재 온도 : {currentWeather.temp} ℃</WeatherSpan>
+                                <WeatherSpan>체감 온도 : {currentWeather.feels_like} ℃</WeatherSpan>
+                                <WeatherSpan>습도 : {currentWeather.humidity} %</WeatherSpan>
 
+                            </WeatherDiv>
+
+                            <WeatherIcon bgImage={` http://openweathermap.org/img/wn/${currentWeather.icon}@4x.png`}>
+                                <WeatherSpan>{currentWeather.state}</WeatherSpan>
+                            </WeatherIcon>
+                        </WeatherContanier>
+
+                        <Data>
+                            <ResetBtn onClick={onClick}>reset</ResetBtn>
+                            <SectionHr></SectionHr>
+                            <Title>{data.title}</Title>
+
+                            <ItemContainer>
+                                <Item>{data.type}</Item>
+                                <Divider>  ·  </Divider>
+                                <Item>{data.detail}</Item>
+                                <Divider>  ·  </Divider>
+                                <Item>{data.location}</Item>
+                                <Divider>  ·  </Divider>
+                                <Item>{data.address}</Item>
+                                {data.tel && data.tel.length > 1 && (
+                                    <>
+                                        <Divider>  ·  </Divider>
+                                        <Item>{data.tel}</Item>
+                                    </>
+                                )}
+                            </ItemContainer>
+                        </Data>
+                        {/* <SectionTitle>{results[i].type}</SectionTitle> */}
+                    </>
                 </Content>
 
 

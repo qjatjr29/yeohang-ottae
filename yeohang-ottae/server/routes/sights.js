@@ -217,7 +217,7 @@ router.post('/', (req, res) => {
     }
 
 
-    apiUrl = url + mykey + `&contentTypeId=${contentType}&cat1=${cat1}&cat2=${cat2}&cat3=${cat3}&areaCode=${areaCode}&MobileOS=ETC&MobileApp=AppTest&_type=json`;
+    apiUrl = url + mykey + `&contentTypeId=${contentType}&cat1=${cat1}&cat2=${cat2}&cat3=${cat3}&areaCode=${areaCode}&numOfRows=100&MobileOS=ETC&MobileApp=AppTest&_type=json`;
     // console.log(areaCode);
     console.log(apiUrl);
     request(apiUrl, (err, res, body) => {
@@ -232,30 +232,77 @@ router.post('/', (req, res) => {
         // console.log(obj.response.body.items.item);
 
         const items = obj.response.body.items.item;
-        console.log(items);
+        // console.log(items);
         var id = 1;
+        var size = items.length;
+        if (size > 1) {
+            items.map((item) => {
+                var title = item.title;
+                var tel = " ";
+                var address = item.addr1;
+                var image = " ";
+                var mapx = item.mapx;
+                var mapy = item.mapy;
+                if (item.addr2) {
+                    address = address + item.addr2;
+                }
+                if (item.tel) {
+                    tel = item.tel;
+                }
+                if (item.firstimage) {
+                    image = item.firstimage;
+                }
+                // console.log(name, field, location);
+                sights.push({
+                    id: id,
+                    title: title,
+                    address: address,
+                    tel: tel,
+                    image: image,
+                    location: location,
+                    type: firstOption,
+                    detail: secondOption,
+                    mapx: mapx,
+                    mapy: mapy
+                });
+                // console.log(item);
+                // console.log(item.관광지명);
+                id = id + 1;
+            })
 
-        items.map((item) => {
-            var title = item.title;
+        } else {
+            var title = items.title;
             var tel = " ";
-            var address = item.addr1;
+            var address = items.addr1;
             var image = " ";
-
-            if (item.addr2) {
-                address = address + item.addr2;
+            var mapx = items.mapx;
+            var mapy = items.mapy;
+            if (items.addr2) {
+                address = address + items.addr2;
             }
-            if (item.tel) {
-                tel = item.tel;
+            if (items.tel) {
+                tel = items.tel;
             }
-            if (item.firstimage) {
-                image = item.firstimage;
+            if (items.firstimage) {
+                image = items.firstimage;
             }
             // console.log(name, field, location);
-            sights.push({ id: id, title: title, address: address, tel: tel, image: image, location: location, type: firstOption, detail: secondOption });
+            sights.push({
+                id: id,
+                title: title,
+                address: address,
+                tel: tel,
+                image: image,
+                location: location,
+                type: firstOption,
+                detail: secondOption,
+                mapx: mapx,
+                mapy: mapy
+            });
             // console.log(item);
             // console.log(item.관광지명);
             id = id + 1;
-        })
+        }
 
         // const items = obj.data;
     })

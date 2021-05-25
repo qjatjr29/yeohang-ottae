@@ -48,4 +48,34 @@ router.get('/', (req, res) => {
     res.json(currentWeathers);
 })
 
+router.post('/', (req, res) => {
+    const lat = req.body.y;
+    const lon = req.body.x;
+    console.log(req.body);
+    currentWeatherURL = url + `weather?lat=${lat}&lon=${lon}&appid=` + key + "&units=metric";
+    // console.log(areaCode);
+    console.log(currentWeatherURL);
+    request(currentWeatherURL, (err, res, body) => {
+        if (err) {
+            console.log(err);
+        }
+        // console.log(body);
+        var obj = JSON.parse(body);
+        console.log(obj);
+        const currentTemp = obj.main.temp;
+        const feels_like = obj.main.feels_like;
+        const humidity = obj.main.humidity;
+        const state = obj.weather[0].main;
+        const icon = obj.weather[0].icon;
+        currentWeathers = {
+            temp: currentTemp,
+            feels_like: feels_like,
+            humidity: humidity,
+            state: state,
+            icon: icon,
+        };
+    })
+    res.redirect('/');
+})
+
 module.exports = router;
