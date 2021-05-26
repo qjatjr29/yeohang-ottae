@@ -5,6 +5,7 @@ import axios from "axios";
 import Helmet from "react-helmet";
 import Loader from "../../Components/Loader";
 import KakaoMap from "../Home/kakaoMap"
+import Map from "../../Components/MapContainer";
 const { kakao } = window;
 
 const Container = styled.div`
@@ -149,6 +150,9 @@ const Home = () => {
                 ))} */}
                     {/* <div id="map"></div> */}
                 </MapContents>
+            </Content>
+            <Content>
+                {/* <Map /> */}
             </Content>
             <Content>
                 <Item>

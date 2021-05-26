@@ -3,6 +3,7 @@ import styled from "styled-components";
 import axios from "axios";
 import Helmet from "react-helmet";
 import Loader from "../../Components/Loader";
+import Map from "../../Components/MapContainer";
 import { Link } from "react-router-dom";
 // import SightsApi from "../../Api/api"
 
@@ -118,11 +119,11 @@ const useLoad = () => {
             setClick(true);
         }
     }
-    const sendXY = async () => {
+    const sendXY = async (x, y) => {
         console.log(data);
         const XY = {
-            x: data.mapx,
-            y: data.mapy,
+            x: x,
+            y: y,
         };
         console.log(XY);
         await axios.post('/weather', XY)
@@ -131,7 +132,7 @@ const useLoad = () => {
             }).then((err) => {
                 console.log(err);
             }).then(() => {
-                console.log(data.mapx, data.mapy);
+                // console.log(data.mapx, data.mapy);
                 LoadWeather();
             })
     }
@@ -165,6 +166,12 @@ const useLoad = () => {
                     // setData(results.data[i - 1]);
                     // console.log(results.data[i - 1]);
                     setData(results.data[i - 1]);
+                    console.log(results.data[i - 1].mapx);
+                    if (results.data[i - 1].mapx) {
+                        // console.log(data.mapx);
+                        sendXY(results.data[i - 1].mapx, results.data[i - 1].mapy);
+                        LoadWeather();
+                    }
                 }
             }
         } catch {
@@ -174,12 +181,13 @@ const useLoad = () => {
         }
     }
     useEffect(() => {
-        // console.log(data);
+
         LoadData();
-        if (data.mapx != null) {
-            sendXY();
-            LoadWeather();
-        }
+        // console.log(data);
+        // if (data.mapx != null) {
+        //     sendXY();
+        //     LoadWeather();
+        // }
     }, [click]);
     return { loading, results, randomNum, onClick, data, currentWeather };
 }
@@ -188,6 +196,7 @@ const useLoad = () => {
 
 const Results = () => {
     const { loading, results, randomNum, onClick, data, currentWeather } = useLoad();
+    console.log(data);
     console.log(currentWeather);
     return (
         loading ? (
@@ -198,51 +207,67 @@ const Results = () => {
         ) : (
             <Container>
                 <Helmet><title>Result | Yeohang-ottae</title></Helmet>
+                {data && data.id ? (
+                    <Content>
+                        <>
+                            <Cover bgImage={data.image != " " ? data.image : require("../../images/NotFound.PNG").default} />
+                            <WeatherContanier>
+                                <WeatherDiv>
+                                    <WeatherSpan>현재 온도 : {currentWeather.temp} ℃</WeatherSpan>
+                                    <WeatherSpan>체감 온도 : {currentWeather.feels_like} ℃</WeatherSpan>
+                                    <WeatherSpan>습도 : {currentWeather.humidity} %</WeatherSpan>
+
+                                </WeatherDiv>
+
+                                <WeatherIcon bgImage={` http://openweathermap.org/img/wn/${currentWeather.icon}@4x.png`}>
+                                    <WeatherSpan>{currentWeather.state}</WeatherSpan>
+                                </WeatherIcon>
+                            </WeatherContanier>
+
+                            <Data>
+                                <ResetBtn onClick={onClick}>reset</ResetBtn>
+                                <SectionHr></SectionHr>
+                                <Title>{data.title}</Title>
+
+                                <ItemContainer>
+                                    <Item>{data.type}</Item>
+                                    <Divider>  ·  </Divider>
+                                    <Item>{data.detail}</Item>
+                                    <Divider>  ·  </Divider>
+                                    <Item>{data.location}</Item>
+                                    <Divider>  ·  </Divider>
+                                    <Item>{data.address}</Item>
+                                    {data.tel && data.tel.length > 1 && (
+                                        <>
+                                            <Divider>  ·  </Divider>
+                                            <Item>{data.tel}</Item>
+                                        </>
+                                    )}
+                                </ItemContainer>
+                                <div>
+                                    <SectionTitle>Map</SectionTitle>
+                                    <SectionHr></SectionHr>
+                                    <Content>
+                                        <Map />
+                                    </Content>
+                                </div>
+                            </Data>
+                            {/* <SectionTitle>{results[i].type}</SectionTitle> */}
+                        </>
+                    </Content>
+                ) :
+                    (
+                        <Content>
+                            <Data>검색 결과가 없습니다. 다시 돌아가 검색해 주세요.</Data>
+                            <Link to='/Sights'>
+                                <div>돌아가기</div>
+                            </Link>
+                        </Content>
+                    )
+                }
                 {/* <Content>
                     <Cover bgImage={ }></Cover>
                 </Content> */}
-                <Content>
-                    <>
-                        <Cover bgImage={data.image != " " ? data.image : require("../../images/NotFound.PNG").default} />
-                        <WeatherContanier>
-                            <WeatherDiv>
-                                <WeatherSpan>현재 온도 : {currentWeather.temp} ℃</WeatherSpan>
-                                <WeatherSpan>체감 온도 : {currentWeather.feels_like} ℃</WeatherSpan>
-                                <WeatherSpan>습도 : {currentWeather.humidity} %</WeatherSpan>
-
-                            </WeatherDiv>
-
-                            <WeatherIcon bgImage={` http://openweathermap.org/img/wn/${currentWeather.icon}@4x.png`}>
-                                <WeatherSpan>{currentWeather.state}</WeatherSpan>
-                            </WeatherIcon>
-                        </WeatherContanier>
-
-                        <Data>
-                            <ResetBtn onClick={onClick}>reset</ResetBtn>
-                            <SectionHr></SectionHr>
-                            <Title>{data.title}</Title>
-
-                            <ItemContainer>
-                                <Item>{data.type}</Item>
-                                <Divider>  ·  </Divider>
-                                <Item>{data.detail}</Item>
-                                <Divider>  ·  </Divider>
-                                <Item>{data.location}</Item>
-                                <Divider>  ·  </Divider>
-                                <Item>{data.address}</Item>
-                                {data.tel && data.tel.length > 1 && (
-                                    <>
-                                        <Divider>  ·  </Divider>
-                                        <Item>{data.tel}</Item>
-                                    </>
-                                )}
-                            </ItemContainer>
-                        </Data>
-                        {/* <SectionTitle>{results[i].type}</SectionTitle> */}
-                    </>
-                </Content>
-
-
             </Container>
         ));
 }
