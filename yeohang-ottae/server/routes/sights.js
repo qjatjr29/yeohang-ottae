@@ -3,8 +3,7 @@ var router = express.Router();
 var urlencode = require('urlencode');
 const bodyParser = require('body-parser');
 var request = require('request');
-const { Navigator } = require('node-navigator');
-const navigator = new Navigator();
+
 
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
@@ -35,6 +34,7 @@ request(apiUrl, (err, res, body) => {
 
     const items = obj.response.body.items.item;
     items.map((item) => {
+
         var title = item.title;
         var tel = " ";
         var address = item.addr1;
@@ -50,8 +50,7 @@ request(apiUrl, (err, res, body) => {
         }
         // console.log(name, field, location);
         sights.push({ title: title, address: address, tel: tel, image: image });
-        // console.log(item);
-        // console.log(item.관광지명);
+
     })
     // const items = obj.data;
 })
@@ -305,8 +304,6 @@ router.post('/', (req, res) => {
                 id = id + 1;
             }
         }
-
-
         // const items = obj.data;
     })
     res.redirect('/');

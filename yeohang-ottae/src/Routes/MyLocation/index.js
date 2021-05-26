@@ -5,8 +5,6 @@ import Helmet from "react-helmet";
 import Loader from "../../Components/Loader";
 import Map from "../../Components/MapContainer";
 import { Link } from "react-router-dom";
-// import SightsApi from "../../Api/api"
-
 
 const Container = styled.div`
     height:calc(100vh - 50px);
@@ -101,7 +99,7 @@ const SectionHr = styled.hr`
 const ResetBtn = styled.button``;
 
 
-const useLoad = () => {
+const useMyLocationSights = () => {
     const [results, setResults] = useState([]);
     const [randomNum, setRandomNum] = useState(null);
     const [data, setData] = useState([]);
@@ -119,6 +117,22 @@ const useLoad = () => {
             setClick(true);
         }
     }
+    const Geolocation_success = (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        const coordsObject = {
+            "latitude": latitude, "longitude": longitude
+            // latitude, longitude
+        };
+        // console.log(latitude, longitude);
+        sendXY(latitude, longitude);
+    }
+    const Geolocation_fail = () => {
+        console.log("fail!");
+    }
+    const askforCoords = () => {
+        navigator.geolocation.getCurrentPosition(Geolocation_success, Geolocation_fail);
+    }
     const sendXY = async (x, y) => {
         console.log(data);
         const XY = {
@@ -126,14 +140,27 @@ const useLoad = () => {
             y: y,
         };
         console.log(XY);
-        await axios.post('/weather', XY)
-            .then((res) => {
-                // console.log(res.data);
-            }).then((err) => {
+        await axios.post('/myLocation', XY)
+            .then((res) => { })
+            .then((err) => {
                 console.log(err);
             }).then(() => {
-                // console.log(data.mapx, data.mapy);
-                LoadWeather();
+                LoadData();
+            })
+    }
+    const sendXYtoWeather = async (x, y) => {
+        console.log(data);
+        const dataXY = {
+            x: x,
+            y: y,
+        };
+        console.log(dataXY);
+        await axios.post('/myLocation', dataXY)
+            .then((res) => { })
+            .then((err) => {
+                console.log(err);
+            }).then(() => {
+                LoadData();
             })
     }
     const LoadWeather = async () => {
@@ -141,13 +168,13 @@ const useLoad = () => {
             console.log("weather");
             const currentWeather = await axios.get('/weather');
             console.log(currentWeather.data);
-            const data = currentWeather.data;
+            const weatherdata = currentWeather.data;
             const currentData = {
-                temp: data.temp,
-                feels_like: data.feels_like,
-                humidity: data.humidity,
-                state: data.state,
-                icon: data.icon
+                temp: weatherdata.temp,
+                feels_like: weatherdata.feels_like,
+                humidity: weatherdata.humidity,
+                state: weatherdata.state,
+                icon: weatherdata.icon
             }
             setCurrentWeather(currentData);
         } catch {
@@ -158,7 +185,7 @@ const useLoad = () => {
     }
     const LoadData = async () => {
         try {
-            const results = await axios.get('/sights');
+            const results = await axios.get('/myLocation');
             const size = results.data.length;
             const randomNum = Math.floor(Math.random() * size) + 1;
             for (let i = 1; i <= size; i++) {
@@ -169,7 +196,7 @@ const useLoad = () => {
                     console.log(results.data[i - 1].mapx);
                     if (results.data[i - 1].mapx) {
                         // console.log(data.mapx);
-                        sendXY(results.data[i - 1].mapx, results.data[i - 1].mapy);
+                        sendXYtoWeather(results.data[i - 1].mapx, results.data[i - 1].mapy);
                         LoadWeather();
                     }
                 }
@@ -182,7 +209,7 @@ const useLoad = () => {
     }
     useEffect(() => {
 
-        LoadData();
+        askforCoords();
         // console.log(data);
         // if (data.mapx != null) {
         //     sendXY();
@@ -192,21 +219,17 @@ const useLoad = () => {
     return { loading, results, randomNum, onClick, data, currentWeather };
 }
 
-
-
-const Results = () => {
-    const { loading, results, randomNum, onClick, data, currentWeather } = useLoad();
-    console.log(data);
-    console.log(currentWeather);
+const MyLocation = () => {
+    const { loading, results, randomNum, onClick, data, currentWeather } = useMyLocationSights();
     return (
         loading ? (
             <>
-                <Helmet><title>Result | Yeohang-ottae</title></Helmet>
+                <Helmet><title>내 주변 관광지 | Yeohang-ottae</title></Helmet>
                 <Loader />
             </>
         ) : (
             <Container>
-                <Helmet><title>Result | Yeohang-ottae</title></Helmet>
+                <Helmet><title>내 주변 관광지 | Yeohang-ottae</title></Helmet>
                 {data && data.id ? (
                     <Content>
                         <>
@@ -231,10 +254,6 @@ const Results = () => {
 
                                 <ItemContainer>
                                     <Item>{data.type}</Item>
-                                    <Divider>  ·  </Divider>
-                                    <Item>{data.detail}</Item>
-                                    <Divider>  ·  </Divider>
-                                    <Item>{data.location}</Item>
                                     <Divider>  ·  </Divider>
                                     <Item>{data.address}</Item>
                                     {data.tel && data.tel.length > 1 && (
@@ -272,5 +291,4 @@ const Results = () => {
         ));
 }
 
-
-export default Results;
+export default MyLocation;

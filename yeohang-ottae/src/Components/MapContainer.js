@@ -6,6 +6,7 @@ import styled from "styled-components";
 const { kakao } = window;
 
 const MapContents = styled.div`
+  margin:20px;
   width: 600px;
   height: 500px;
 `;
@@ -120,8 +121,9 @@ const MapContents = styled.div`
 //     )
 // }
 
-const MapContainer = () => {
+const MapContainer = ({ lat, lon }) => {
     useEffect(() => {
+        console.log(lat, lon);
         const script = document.createElement("script");
         script.async = true;
         script.src =
@@ -131,10 +133,15 @@ const MapContainer = () => {
             kakao.maps.load(() => {
                 let container = document.getElementById('map');
                 let options = {
-                    center: new kakao.maps.LatLng(37.506502, 127.053617),
+                    center: new kakao.maps.LatLng(lat, lon),
                     level: 7
                 };
+                let markerPostion = new kakao.maps.LatLng(lat, lon);
+                let marker = new kakao.maps.Marker({
+                    position: markerPostion
+                })
                 const map = new window.kakao.maps.Map(container, options);
+                marker.setMap(map);
             });
 
         };

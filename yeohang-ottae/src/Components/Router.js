@@ -5,6 +5,7 @@ import SideBar from "./Sidebar";
 import Home from "../Routes/Home";
 import Sights from "../Routes/Sights";
 import Results from "../Routes/Results";
+import MyLocation from "../Routes/MyLocation";
 
 export default () => (
     <Router>
@@ -15,6 +16,7 @@ export default () => (
                 <Route path="/" exact component={Home} />
                 <Route path="/Sights" exact component={Sights} />
                 <Route path="/Results" exact component={Results} />
+                <Route path="/MyLocation" exact component={MyLocation} />
                 <Redirect from="*" to="/" />
             </Switch>
         </>
