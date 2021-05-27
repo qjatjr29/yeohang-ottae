@@ -11,17 +11,22 @@ const weather = require('./routes/weather');
 
 const surrounding = require('./routes/surrounding');
 const sights = require('./routes/sights');
-
+const restaurant = require('./routes/restaurant');
+const accommodation = require('./routes/accommodation');
 
 app.use(cors());
 app.use(api);
-app.use('/surrounding', surrounding);
-app.use('/sights', sights);
 
+app.use('/sights', sights);
+app.use('/weather', weather);
 app.use('/myLocation', myLocation);
+app.use('/restaurant', restaurant);
+app.use('/accommodation', accommodation);
+
+app.use('/surrounding', surrounding);
 app.use('/test', test);
 app.use('/test_sights', test_sights);
-app.use('/weather', weather);
+
 
 const port = 3002;
 app.listen(port, () => console.log(`Listening on port ${port}`));

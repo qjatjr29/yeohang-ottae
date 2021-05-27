@@ -6,6 +6,8 @@ import Home from "../Routes/Home";
 import Sights from "../Routes/Sights";
 import Results from "../Routes/Results";
 import MyLocation from "../Routes/MyLocation";
+import Restaurant from "../Routes/Restaurant";
+import Accommodation from "../Routes/Accommodations";
 
 export default () => (
     <Router>
@@ -17,6 +19,8 @@ export default () => (
                 <Route path="/Sights" exact component={Sights} />
                 <Route path="/Results" exact component={Results} />
                 <Route path="/MyLocation" exact component={MyLocation} />
+                <Route path="/Restaurant" exact component={Restaurant} />
+                <Route path="/Accommodation" exact component={Accommodation} />
                 <Redirect from="*" to="/" />
             </Switch>
         </>

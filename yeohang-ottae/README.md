@@ -16,4 +16,19 @@
 
 ## 지도
 
+- [x] 여행지 위치 표시 지도
+- [x] 지도에 마커 표시
+- [x] 내 위치 표시 지도
 
+
+### 설치할 모듈
+
+- [x] express
+- [x] styled-components
+- [x] react-router-dom
+- [] 
+
+### API
+
+- [] 
+- [] 날씨 : openWeather

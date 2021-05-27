@@ -25,10 +25,11 @@ const Content = styled.div`
 const Item = styled.div`
     margin-bottom:30px;
 `;
-const SectionTitle = styled.span`
-    margin-top:20px;
+const SelectTitle = styled.span`
+    /* margin :30px 0px; */
     font-size:23px;
     font-weight:600;
+    color:white;
 `;
 const Table = styled.table`
     width:100%;
@@ -39,6 +40,13 @@ const SelectDiv = styled.div`
     margin: 30px;
     height: 170px;
     color:black;
+`;
+const SelectBtn = styled.div`
+    margin-left: 30px;
+    margin-bottom:20px;;
+`;
+const SelectHr = styled.hr`
+    margin-top:15px;
 `;
 
 
@@ -205,51 +213,34 @@ const Sights = () => {
             <Helmet><title>Questions | Yeohang-ottae</title></Helmet>
             <div>
                 <SelectDiv>
+                    <SelectTitle>Select Location</SelectTitle>
+                    <SelectHr></SelectHr>
                     <Select options={firstOption} onChange={handleChange} />
                 </SelectDiv>
                 <SelectDiv>
+                    <SelectTitle>Select type</SelectTitle>
+                    <SelectHr></SelectHr>
                     <Select options={secondOption} onChange={handleChange} />
                 </SelectDiv>
                 <SelectDiv>
+                    <SelectTitle>Select detail</SelectTitle>
+                    <SelectHr></SelectHr>
                     <Select options={thirdOption} onChange={handleChange} />
                 </SelectDiv>
                 {/* <Link to="/Results">
                     <button onClick={handleSubmit}>선택</button>
                 </Link> */}
-                <button onClick={handleSubmit}>선택</button>
-                <Link to="Results">
-                    <div>이동</div>
-                </Link>
+                <SelectBtn>
+                    <button onClick={handleSubmit}>선택</button>
+                </SelectBtn>
+                <SelectBtn>
+                    <Link to="Results">
+                        <div>검색 결과로 이동</div>
+                    </Link>
+                </SelectBtn>
+
             </div>
 
-
-            {/* {loading ? <Loader /> :
-                <>
-                    <Helmet><title>Questions | Yeohang-ottae</title></Helmet>
-                    <Content>
-                        {sights && sights.length > 0 && (
-                            <Item>
-                                <SectionTitle>관광지</SectionTitle>
-                                <Table>
-                                    <tbody>
-                                        <tr>
-                                            <td>이름</td>
-                                            <td>위치</td>
-                                        </tr>
-                                        {sights.map(tour => (
-                                            <SightTable
-                                                name={tour.name}
-                                                location={tour.location}
-                                            />
-                                        ))}
-                                    </tbody>
-                                </Table>
-
-                            </Item>
-                        )}
-                    </Content>
-                </>
-            } */}
         </Container>
 
     );

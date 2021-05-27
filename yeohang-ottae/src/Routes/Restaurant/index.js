@@ -5,8 +5,6 @@ import Helmet from "react-helmet";
 import Loader from "../../Components/Loader";
 import Map from "../../Components/MapContainer";
 import { Link } from "react-router-dom";
-// import SightsApi from "../../Api/api"
-
 
 const Container = styled.div`
     height:calc(100vh - 50px);
@@ -101,7 +99,7 @@ const SectionHr = styled.hr`
 const ResetBtn = styled.button``;
 
 
-const useLoad = () => {
+const useLoad = (sightX, sightY) => {
     const [results, setResults] = useState([]);
     const [randomNum, setRandomNum] = useState(null);
     const [data, setData] = useState([]);
@@ -118,6 +116,21 @@ const useLoad = () => {
         else if (click == false) {
             setClick(true);
         }
+    }
+    const sendToRestaurantServer = async (sightX, sightY) => {
+        const sightXY = {
+            x: sightX,
+            y: sightY,
+        }
+        await axios.post('/restaurant', sightXY)
+            .then((res) => {
+                // console.log(res.data);
+            }).then((err) => {
+                console.log(err);
+            }).then(() => {
+                // console.log(data.mapx, data.mapy);
+                LoadRestaurant();
+            })
     }
     const sendXY = async (x, y) => {
         console.log(data);
@@ -156,9 +169,9 @@ const useLoad = () => {
             setLoading(false);
         }
     }
-    const LoadData = async () => {
+    const LoadRestaurant = async () => {
         try {
-            const results = await axios.get('/sights');
+            const results = await axios.get('/restaurant');
             const size = results.data.length;
             const randomNum = Math.floor(Math.random() * size) + 1;
             for (let i = 1; i <= size; i++) {
@@ -181,32 +194,27 @@ const useLoad = () => {
         }
     }
     useEffect(() => {
-
-        LoadData();
-        // console.log(data);
-        // if (data.mapx != null) {
-        //     sendXY();
-        //     LoadWeather();
-        // }
+        sendToRestaurantServer(sightX, sightY);
     }, [click]);
     return { loading, results, randomNum, onClick, data, currentWeather };
 }
 
 
-
-const Results = () => {
-    const { loading, results, randomNum, onClick, data, currentWeather } = useLoad();
-    console.log(data.mapx);
-    // console.log(currentWeather);
+const Restaurant = ({ location }) => {
+    console.log(location);
+    const x = location.state.x;
+    const y = location.state.y;
+    console.log(x, y);
+    const { loading, results, randomNum, onClick, data, currentWeather } = useLoad(x, y);
     return (
         loading ? (
             <>
-                <Helmet><title>Result | Yeohang-ottae</title></Helmet>
+                <Helmet><title>Restaurant | Yeohang-ottae</title></Helmet>
                 <Loader />
             </>
         ) : (
             <Container>
-                <Helmet><title>Result | Yeohang-ottae</title></Helmet>
+                <Helmet><title>Restaurant | Yeohang-ottae</title></Helmet>
                 {data && data.id ? (
                     <Content>
                         <>
@@ -227,17 +235,16 @@ const Results = () => {
                             <Data>
                                 <ResetBtn onClick={onClick}>reset</ResetBtn>
                                 <Divider>  ·  </Divider>
-                                <Link to={{
+                                {/* <Link to={{
                                     pathname: '/Restaurant',
                                     state: { x: data.mapx, y: data.mapy }
                                 }}
                                 >
                                     <button>주변 음식점 추천</button>
-                                </Link>
-                                <Divider>  ·  </Divider>
+                                </Link> */}
                                 <Link to={{
                                     pathname: '/Accommodation',
-                                    state: { x: data.mapx, y: data.mapy }
+                                    state: { x: x, y: y }
                                 }} >
                                     <button>주변 숙박시설 추천</button>
                                 </Link>
@@ -249,8 +256,6 @@ const Results = () => {
                                     <Item>{data.type}</Item>
                                     <Divider>  ·  </Divider>
                                     <Item>{data.detail}</Item>
-                                    <Divider>  ·  </Divider>
-                                    <Item>{data.location}</Item>
                                     <Divider>  ·  </Divider>
                                     <Item>{data.address}</Item>
                                     {data.tel && data.tel.length > 1 && (
@@ -289,4 +294,7 @@ const Results = () => {
 }
 
 
-export default Results;
+
+
+
+export default Restaurant;
