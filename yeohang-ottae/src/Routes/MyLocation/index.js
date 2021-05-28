@@ -214,7 +214,7 @@ const useMyLocationSights = () => {
                 if (a == b) return 0;
                 if (a < b) return -1;
             })
-            console.log(otherRandomNums);
+            // console.log(otherRandomNums);
             var count = 0;
             var otherSights = [];
             for (let i = 1; i <= size; i++) {
