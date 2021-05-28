@@ -5,6 +5,7 @@ import Helmet from "react-helmet";
 import Loader from "../../Components/Loader";
 import Map from "../../Components/MapContainer";
 import { Link } from "react-router-dom";
+import Poster from "../../Components/Poster";
 // import SightsApi from "../../Api/api"
 
 
@@ -98,6 +99,17 @@ const SectionHr = styled.hr`
     margin-top:15px;
 `;
 
+const OtherSights = styled.div`
+    height: 270px;
+    display: grid;
+    gap: 50px;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: center;
+    grid-auto-flow: column;
+    grid-auto-columns: 10%;
+    overflow-x: auto;
+`;
+
 const ResetBtn = styled.button``;
 
 
@@ -108,6 +120,7 @@ const useLoad = () => {
     const [click, setClick] = useState(false);
     const [currentWeather, setCurrentWeather] = useState({});
     const [loading, setLoading] = useState(true);
+    const [others, setOthers] = useState([]);
     const onClick = (event) => {
         if (event) {
             event.preventDefault();
@@ -161,19 +174,47 @@ const useLoad = () => {
             const results = await axios.get('/sights');
             const size = results.data.length;
             const randomNum = Math.floor(Math.random() * size) + 1;
+            var otherRandomNums = [];
+            for (let j = 0; j < 5; j++) {
+                const otherRandom = Math.floor(Math.random() * size) + 1;
+                while (1) {
+                    if (randomNum != otherRandom) {
+                        otherRandomNums.push(otherRandom);
+                        break;
+                    }
+                    otherRandom = Math.floor(Math.random() * size) + 1;
+                }
+            }
+            otherRandomNums.sort((a, b) => {
+                if (a > b) return 1;
+                if (a == b) return 0;
+                if (a < b) return -1;
+            })
+            // console.log(otherRandomNums);
+            var count = 0;
+            var otherSights = [];
             for (let i = 1; i <= size; i++) {
+                var cmpNum = otherRandomNums[count];
                 if (i == randomNum) {
                     // setData(results.data[i - 1]);
                     // console.log(results.data[i - 1]);
                     setData(results.data[i - 1]);
-                    console.log(results.data[i - 1].mapx);
+                    // console.log(results.data[i - 1].mapx);
                     if (results.data[i - 1].mapx) {
                         // console.log(data.mapx);
                         sendXY(results.data[i - 1].mapx, results.data[i - 1].mapy);
                         LoadWeather();
                     }
                 }
+                else if (randomNum != cmpNum && cmpNum == i) {
+
+                    otherSights.push(results.data[i - 1]);
+
+                    count = count + 1;
+                }
+                // console.log(otherSights);
             }
+            setOthers(otherSights);
         } catch {
             console.log("err");
         } finally {
@@ -189,15 +230,16 @@ const useLoad = () => {
         //     LoadWeather();
         // }
     }, [click]);
-    return { loading, results, randomNum, onClick, data, currentWeather };
+    return { loading, results, randomNum, onClick, data, currentWeather, others };
 }
 
 
 
 const Results = () => {
-    const { loading, results, randomNum, onClick, data, currentWeather } = useLoad();
-    console.log(data.mapx);
+    const { loading, results, randomNum, onClick, data, currentWeather, others } = useLoad();
+    // console.log(data.mapx);
     // console.log(currentWeather);
+    console.log(others);
     return (
         loading ? (
             <>
@@ -260,13 +302,33 @@ const Results = () => {
                                         </>
                                     )}
                                 </ItemContainer>
-                                <div>
+
+                                <ItemContainer>
                                     <SectionTitle>Map</SectionTitle>
                                     <SectionHr></SectionHr>
                                     <Content>
                                         <Map key={data.id} lat={data.mapy} lon={data.mapx} />
                                     </Content>
-                                </div>
+                                </ItemContainer>
+                                {others && others.length > 0 && (
+                                    <>
+                                        <ItemContainer>
+                                            <SectionTitle>다른 여행지 추천</SectionTitle>
+                                            <SectionHr></SectionHr>
+                                            <OtherSights>
+                                                {others.map((other) => (
+                                                    <Poster
+                                                        key={other.id}
+                                                        image={other.image}
+                                                        title={other.title}
+                                                        detail={other.detail}
+                                                        location={other.location}
+                                                    />
+                                                ))}
+                                            </OtherSights>
+                                        </ItemContainer>
+                                    </>
+                                )}
                             </Data>
                             {/* <SectionTitle>{results[i].type}</SectionTitle> */}
                         </>

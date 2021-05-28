@@ -5,6 +5,7 @@ import Helmet from "react-helmet";
 import Loader from "../../Components/Loader";
 import Map from "../../Components/MapContainer";
 import { Link } from "react-router-dom";
+import Poster from "../../Components/Poster";
 
 const Container = styled.div`
     height:calc(100vh - 50px);
@@ -95,7 +96,16 @@ const SectionTitle = styled.span`
 const SectionHr = styled.hr`
     margin-top:15px;
 `;
-
+const Others = styled.div`
+    height: 270px;
+    display: grid;
+    gap: 50px;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: center;
+    grid-auto-flow: column;
+    grid-auto-columns: 10%;
+    overflow-x: auto;
+`;
 const ResetBtn = styled.button``;
 
 
@@ -106,6 +116,7 @@ const useLoad = (sightX, sightY) => {
     const [click, setClick] = useState(false);
     const [currentWeather, setCurrentWeather] = useState({});
     const [loading, setLoading] = useState(true);
+    const [others, setOthers] = useState([]);
     const onClick = (event) => {
         if (event) {
             event.preventDefault();
@@ -174,7 +185,27 @@ const useLoad = (sightX, sightY) => {
             const results = await axios.get('/restaurant');
             const size = results.data.length;
             const randomNum = Math.floor(Math.random() * size) + 1;
+            var otherRandomNums = [];
+            for (let j = 0; j < 5; j++) {
+                const otherRandom = Math.floor(Math.random() * size) + 1;
+                while (1) {
+                    if (randomNum != otherRandom) {
+                        otherRandomNums.push(otherRandom);
+                        break;
+                    }
+                    otherRandom = Math.floor(Math.random() * size) + 1;
+                }
+            }
+            otherRandomNums.sort((a, b) => {
+                if (a > b) return 1;
+                if (a == b) return 0;
+                if (a < b) return -1;
+            })
+            console.log(otherRandomNums);
+            var count = 0;
+            var otherRestaurant = [];
             for (let i = 1; i <= size; i++) {
+                var cmpNum = otherRandomNums[count];
                 if (i == randomNum) {
                     // setData(results.data[i - 1]);
                     // console.log(results.data[i - 1]);
@@ -186,7 +217,14 @@ const useLoad = (sightX, sightY) => {
                         LoadWeather();
                     }
                 }
+                else if (randomNum != cmpNum && cmpNum == i) {
+
+                    otherRestaurant.push(results.data[i - 1]);
+
+                    count = count + 1;
+                }
             }
+            setOthers(otherRestaurant);
         } catch {
             console.log("err");
         } finally {
@@ -196,16 +234,17 @@ const useLoad = (sightX, sightY) => {
     useEffect(() => {
         sendToRestaurantServer(sightX, sightY);
     }, [click]);
-    return { loading, results, randomNum, onClick, data, currentWeather };
+    return { loading, results, randomNum, onClick, data, currentWeather, others };
 }
 
 
 const Restaurant = ({ location }) => {
-    console.log(location);
+    // console.log(location);
     const x = location.state.x;
     const y = location.state.y;
-    console.log(x, y);
-    const { loading, results, randomNum, onClick, data, currentWeather } = useLoad(x, y);
+    // console.log(x, y);
+    const { loading, results, randomNum, onClick, data, currentWeather, others } = useLoad(x, y);
+    console.log(others);
     return (
         loading ? (
             <>
@@ -265,13 +304,32 @@ const Restaurant = ({ location }) => {
                                         </>
                                     )}
                                 </ItemContainer>
-                                <div>
+                                <ItemContainer>
                                     <SectionTitle>Map</SectionTitle>
                                     <SectionHr></SectionHr>
                                     <Content>
                                         <Map key={data.id} lat={data.mapy} lon={data.mapx} />
                                     </Content>
-                                </div>
+                                </ItemContainer>
+                                {others && others.length > 0 && (
+                                    <>
+                                        <ItemContainer>
+                                            <SectionTitle>다른 음식점 추천</SectionTitle>
+                                            <SectionHr></SectionHr>
+                                            <Others>
+                                                {others.map((other) => (
+                                                    <Poster
+                                                        key={other.id}
+                                                        image={other.image}
+                                                        title={other.title}
+                                                        detail={other.detail}
+                                                        location={other.location}
+                                                    />
+                                                ))}
+                                            </Others>
+                                        </ItemContainer>
+                                    </>
+                                )}
                             </Data>
                             {/* <SectionTitle>{results[i].type}</SectionTitle> */}
                         </>
